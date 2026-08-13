@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Perfil de Inversión</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6028;
+    --bg: #07080d;
+    --bg2: #0d0f18;
+    --bg3: #131722;
+    --bg4: #1a1e2e;
+    --text: #e8e4dc;
+    --text-muted: #8a8578;
+    --border: rgba(201,168,76,0.18);
+    --green: #3ecf8e;
+    --red: #e05c5c;
+    --blue: #5c9de0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* Background texture */
+  body::before{
+    content:'';
+    position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(92,157,224,0.04) 0%, transparent 60%);
+    pointer-events:none;z-index:0;
+  }
+
+  .container{
+    max-width:760px;margin:0 auto;padding:40px 24px;
+    position:relative;z-index:1;
+  }
+
+  /* HEADER */
+  .header{text-align:center;margin-bottom:48px;}
+  .header-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(201,168,76,0.1);border:1px solid var(--border);
+    padding:6px 16px;border-radius:40px;
+    font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;
+    margin-bottom:24px;
+  }
+  .header-badge span{width:6px;height:6px;background:var(--gold);border-radius:50%;display:inline-block;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  h1{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(2rem,5vw,3.2rem);
+    font-weight:300;
+    letter-spacing:-0.5px;
+    line-height:1.15;
+    color:var(--text);
+    margin-bottom:12px;
+  }
+  h1 em{color:var(--gold);font-style:normal;}
+  .header-sub{
+    font-size:14px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.7;
+  }
+
+  /* PROGRESS */
+  .progress-wrap{margin-bottom:40px;}
+  .progress-labels{
+    display:flex;justify-content:space-between;margin-bottom:12px;
+    font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);
+  }
+  .progress-label.active{color:var(--gold);}
+  .progress-track{
+    height:2px;background:rgba(255,255,255,0.06);border-radius:2px;position:relative;
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));
+    border-radius:2px;transition:width 0.6s cubic-bezier(.4,0,0.2,1);
+    position:relative;
+  }
+  .progress-fill::after{
+    content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);
+    width:8px;height:8px;background:var(--gold);border-radius:50%;
+    box-shadow:0 0 12px var(--gold);
+  }
+  .progress-count{
+    text-align:right;margin-top:8px;font-size:11px;color:var(--text-muted);
+  }
+  .progress-count strong{color:var(--gold);}
+
+  /* SECTION PILL */
+  .section-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--bg3);border:1px solid var(--border);
+    padding:8px 18px;border-radius:30px;margin-bottom:24px;
+    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);
+  }
+  .section-icon{font-size:14px;}
+
+  /* QUESTION CARD */
+  .q-card{
+    background:var(--bg2);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:20px;
+    padding:36px;
+    margin-bottom:24px;
+    animation:fadeSlide .4s ease both;
+  }
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .q-num{
+    font-size:10px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--text-muted);margin-bottom:10px;
+  }
+  .q-text{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(1.15rem,3vw,1.45rem);
+    font-weight:400;line-height:1.4;
+    color:var(--text);margin-bottom:28px;
+  }
+
+  /* OPTIONS */
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .opt{
+    display:flex;align-items:center;gap:14px;
+    padding:16px 20px;
+    background:var(--bg3);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:12px;
+    cursor:pointer;
+    transition:all .25s ease;
+    position:relative;overflow:hidden;
+  }
+  .opt::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(201,168,76,0.08),transparent);
+    opacity:0;transition:opacity .25s;
+  }
+  .opt:hover{border-color:rgba(201,168,76,0.3);}
+  .opt:hover::before{opacity:1;}
+  .opt.selected{
+    border-color:var(--gold);
+    background:rgba(201,168,76,0.07);
+  }
+  .opt.selected::before{opacity:1;}
+  .opt-dot{
+    width:18px;height:18px;min-width:18px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.2);
+    transition:all .2s;display:flex;align-items:center;justify-content:center;
+  }
+  .opt.selected .opt-dot{
+    border-color:var(--gold);background:var(--gold);
+  }
+  .opt-dot-inner{width:7px;height:7px;background:var(--bg);border-radius:50%;opacity:0;transition:.2s;}
+  .opt.selected .opt-dot-inner{opacity:1;}
+  .opt-score{
+    margin-left:auto;font-size:10px;letter-spacing:1px;
+    color:var(--text-muted);padding:3px 10px;
+    background:rgba(255,255,255,0.04);border-radius:20px;
+    white-space:nowrap;
+  }
+  .opt.selected .opt-score{color:var(--gold);}
+  .opt-text{font-size:13.5px;line-height:1.4;color:var(--text);}
+
+  /* BUTTONS */
+  .nav-row{display:flex;justify-content:flex-end;gap:12px;margin-top:32px;}
+  .btn{
+    padding:13px 32px;border-radius:50px;border:none;cursor:pointer;
+    font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:.5px;
+    transition:all .25s ease;font-weight:500;
+  }
+  .btn-ghost{
+    background:transparent;border:1px solid rgba(255,255,255,0.1);
+    color:var(--text-muted);
+  }
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
+  .btn-primary{
+    background:linear-gradient(135deg,#b8932a,var(--gold));
+    color:#0a0800;font-weight:600;
+    box-shadow:0 4px 20px rgba(201,168,76,0.3);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,0.4);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+  /* START SCREEN */
+  #start-screen{text-align:center;padding:20px 0;}
+  .dimensions-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+    margin:40px 0;text-align:left;
+  }
+  .dim-card{
+    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
+    border-radius:16px;padding:20px;
+    transition:.25s;
+  }
+  .dim-card:hover{border-color:var(--border);}
+  .dim-icon{font-size:22px;margin-bottom:10px;}
+  .dim-title{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+  .dim-desc{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
+
+  /* RESULTS */
+  #result-screen{display:none;animation:fadeSlide .5s ease;}
+  .result-header{text-align:center;margin-bottom:40px;}
+  .profile-badge{
+    display:inline-flex;flex-direction:column;align-items:center;
+    gap:12px;margin-bottom:28px;
+  }
+  .profile-icon-wrap{
+    width:100px;height:100px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:42px;position:relative;
+  }
+  .profile-icon-wrap::after{
+    content:'';position:absolute;inset:-4px;border-radius:50%;
+    border:1.5px solid var(--profile-color);opacity:.5;
+    animation:spin 8s linear infinite;
+    border-top-color:transparent;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .profile-name{
+    font-family:'Cormorant Garamond',serif;
+    font-size:2.6rem;font-weight:300;
+    color:var(--profile-color);
+  }
+  .profile-tagline{font-size:13px;color:var(--text-muted);max-width:400px;margin:0 auto;line-height:1.7;}
+
+  /* Score breakdown */
+  .score-breakdown{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+    margin:32px 0;
+  }
+  .score-card{
+    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
+    border-radius:16px;padding:20px;
+  }
+  .score-card-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
+  .score-card-dim{font-size:12px;color:var(--text);margin-bottom:14px;font-weight:500;}
+  .score-bar-track{height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+  .score-card-pts{font-size:11px;color:var(--text-muted);margin-top:8px;}
+  .score-card-pts strong{color:var(--text);}
+
+  /* Radar chart */
+  .chart-wrap{
+    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
+    border-radius:20px;padding:28px;margin-bottom:24px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .chart-canvas{max-width:300px;max-height:300px;}
+
+  /* Recommendations */
+  .rec-section{margin-bottom:24px;}
+  .rec-title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.5rem;font-weight:400;color:var(--text);margin-bottom:20px;
+  }
+  .rec-grid{display:flex;flex-direction:column;gap:12px;}
+  .rec-item{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
+    border-radius:14px;padding:18px;
+  }
+  .rec-item-icon{font-size:20px;margin-top:1px;}
+  .rec-item-text{}
+  .rec-item-text strong{font-size:13px;color:var(--text);display:block;margin-bottom:4px;}
+  .rec-item-text span{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
+
+  /* Allocation chart */
+  .alloc-section{
+    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
+    border-radius:20px;padding:28px;margin-bottom:24px;
+  }
+  .alloc-title{
+    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--text-muted);margin-bottom:20px;
+  }
+  .alloc-bars{display:flex;flex-direction:column;gap:14px;}
+  .alloc-row{display:flex;align-items:center;gap:14px;}
+  .alloc-label{font-size:12.5px;color:var(--text);width:140px;flex-shrink:0;}
+  .alloc-track{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;}
+  .alloc-bar{height:100%;border-radius:8px;transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+  .alloc-pct{font-size:12px;color:var(--text-muted);width:38px;text-align:right;}
+
+  /* Footer result */
+  .result-footer{text-align:center;padding-top:16px;}
+  .restart-btn{
+    background:transparent;border:1px solid rgba(201,168,76,0.25);
+    color:var(--gold);padding:12px 30px;border-radius:50px;
+    cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;
+    transition:.25s;
+  }
+  .restart-btn:hover{background:rgba(201,168,76,0.08);border-color:var(--gold);}
+
+  /* Score total */
+  .total-score-wrap{
+    display:flex;align-items:center;justify-content:center;gap:32px;
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:16px;padding:20px 28px;margin-bottom:28px;
+  }
+  .total-score-num{
+    font-family:'Cormorant Garamond',serif;font-size:3.5rem;
+    font-weight:300;color:var(--gold);line-height:1;
+  }
+  .total-score-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);}
+  .total-score-max{font-size:13px;color:var(--text-muted);}
+  .total-divider{width:1px;height:48px;background:rgba(255,255,255,0.08);}
+  .profile-range-wrap{font-size:12px;color:var(--text-muted);line-height:1.8;}
+  .profile-range-wrap .range-val{color:var(--text);}
+
+  @media(max-width:560px){
+    .dimensions-grid{grid-template-columns:1fr;}
+    .score-breakdown{grid-template-columns:1fr;}
+    .total-score-wrap{flex-direction:column;gap:16px;}
+    .total-divider{width:48px;height:1px;}
+    .q-card{padding:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">
+      <span></span> Análisis de Perfil
+    </div>
+    <h1>Tu <em>Perfil de</em><br/>Inversión</h1>
+    <p class="header-sub">Cuestionario profesional de 12 preguntas que evalúa 4 dimensiones clave para determinar tu estrategia de inversión ideal.</p>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <div class="dimensions-grid">
+      <div class="dim-card">
+        <div class="dim-icon">⚖️</div>
+        <div class="dim-title">Tolerancia al Riesgo</div>
+        <div class="dim-desc">Cómo reaccionas ante la volatilidad y pérdidas potenciales en tu portafolio.</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">🕐</div>
+        <div class="dim-title">Horizonte de Inversión</div>
+        <div class="dim-desc">El tiempo disponible para invertir y tus objetivos financieros a futuro.</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">💼</div>
+        <div class="dim-title">Situación Financiera</div>
+        <div class="dim-desc">Tu capacidad de ahorro, estabilidad de ingresos y fondo de emergencia.</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-icon">📊</div>
+        <div class="dim-title">Conocimiento Financiero</div>
+        <div class="dim-desc">Tu nivel de experiencia con instrumentos y mercados de inversión.</div>
+      </div>
+    </div>
+    <div class="nav-row" style="justify-content:center;">
+      <button class="btn btn-primary" onclick="startQuiz()">Comenzar evaluación →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" style="display:none;">
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span class="progress-label" id="lbl-0">Riesgo</span>
+        <span class="progress-label" id="lbl-1">Horizonte</span>
+        <span class="progress-label" id="lbl-2">Finanzas</span>
+        <span class="progress-label" id="lbl-3">Conocimiento</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-count">Pregunta <strong id="q-current">1</strong> de <strong>12</strong></div>
+    </div>
+    <div id="question-area"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btn-back" onclick="goBack()" style="display:none;">← Anterior</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()" disabled>Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen">
+    <div class="result-header">
+      <div class="profile-badge">
+        <div class="profile-icon-wrap" id="result-icon-wrap" style="background:rgba(0,0,0,0.3);">
+          <span id="result-icon">🛡️</span>
+        </div>
+        <div class="profile-name" id="result-name">Conservador</div>
+      </div>
+      <p class="profile-tagline" id="result-tagline"></p>
+    </div>
+
+    <div class="total-score-wrap">
+      <div>
+        <div class="total-score-num" id="total-score-display">0</div>
+        <div class="total-score-max">/ 36 puntos totales</div>
+      </div>
+      <div class="total-divider"></div>
+      <div class="profile-range-wrap" id="range-info"></div>
+    </div>
+
+    <div class="score-breakdown" id="score-breakdown"></div>
+
+    <div class="chart-wrap">
+      <canvas class="chart-canvas" id="radarChart"></canvas>
+    </div>
+
+    <div class="alloc-section">
+      <div class="alloc-title">Distribución de Portafolio Sugerida</div>
+      <div class="alloc-bars" id="alloc-bars"></div>
+    </div>
+
+    <div class="rec-section">
+      <div class="rec-title">Recomendaciones para tu perfil</div>
+      <div class="rec-grid" id="rec-grid"></div>
+    </div>
+
+    <div class="result-footer">
+      <button class="restart-btn" onclick="restartQuiz()">↺ Volver a evaluar</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // SECCIÓN 0: Tolerancia al Riesgo (Q0-Q2) — max 9
+  {
+    section:0,
+    text:"Si tu cartera de inversión cayera un 20% en un mes, ¿qué harías?",
+    opts:[
+      {text:"Vendería todo inmediatamente para evitar mayores pérdidas.", score:0, tag:"Muy conservador"},
+      {text:"Vendería una parte para reducir mi exposición al riesgo.", score:1, tag:"Conservador"},
+      {text:"No haría nada; esperaría pacientemente la recuperación.", score:2, tag:"Moderado"},
+      {text:"Aprovecharía y compraría más al precio más bajo.", score:3, tag:"Agresivo"},
+    ]
+  },
+  {
+    section:0,
+    text:"¿Qué combinación de rendimiento y riesgo prefieres?",
+    opts:[
+      {text:"Rendimiento bajo pero garantizado (CETES, pagarés).", score:0, tag:"Muy conservador"},
+      {text:"Rendimiento moderado con riesgo controlado.", score:1, tag:"Conservador"},
+      {text:"Rendimiento alto con riesgo moderado.", score:2, tag:"Moderado"},
+      {text:"Máximo rendimiento posible aunque implique alta volatilidad.", score:3, tag:"Agresivo"},
+    ]
+  },
+  {
+    section:0,
+    text:"¿Cómo te afecta emocionalmente una pérdida significativa en tus inversiones?",
+    opts:[
+      {text:"Me genera mucho estrés; afecta mi sueño y concentración.", score:0, tag:"Alta sensibilidad"},
+      {text:"Me preocupa bastante y reviso mis inversiones constantemente.", score:1, tag:"Sensible"},
+      {text:"Lo acepto como parte natural del proceso de inversión.", score:2, tag:"Ecuánime"},
+      {text:"Las veo como oportunidades; mantengo total calma.", score:3, tag:"Resiliente"},
+    ]
+  },
+  // SECCIÓN 1: Horizonte de Inversión (Q3-Q5) — max 9
+  {
+    section:1,
+    text:"¿En cuánto tiempo planeas necesitar o utilizar el dinero que vas a invertir?",
+    opts:[
+      {text:"En menos de 1 año.", score:0, tag:"Corto plazo"},
+      {text:"Entre 1 y 3 años.", score:1, tag:"Corto-mediano"},
+      {text:"Entre 3 y 7 años.", score:2, tag:"Mediano plazo"},
+      {text:"Más de 7 años; es una inversión de largo plazo.", score:3, tag:"Largo plazo"},
+    ]
+  },
+  {
+    section:1,
+    text:"¿Cuál es tu principal objetivo al invertir?",
+    opts:[
+      {text:"Proteger mi capital de la inflación sin perder valor.", score:0, tag:"Preservación"},
+      {text:"Generar ingresos pasivos estables y predecibles.", score:1, tag:"Ingreso"},
+      {text:"Hacer crecer mi patrimonio a mediano plazo.", score:2, tag:"Crecimiento"},
+      {text:"Maximizar el retorno a largo plazo, sin importar volatilidad.", score:3, tag:"Máx. retorno"},
+    ]
+  },
+  {
+    section:1,
+    text:"¿Tienes compromisos financieros importantes (deudas, gastos mayores) en los próximos 3 años?",
+    opts:[
+      {text:"Sí, varios e importantes que requieren liquidez.", score:0, tag:"Alta carga"},
+      {text:"Sí, algunos que debo considerar en mi planeación.", score:1, tag:"Carga moderada"},
+      {text:"Pocos y perfectamente manejables.", score:2, tag:"Baja carga"},
+      {text:"No, tengo total flexibilidad financiera.", score:3, tag:"Sin carga"},
+    ]
+  },
+  // SECCIÓN 2: Situación Financiera (Q6-Q8) — max 9
+  {
+    section:2,
+    text:"¿Qué porcentaje de tus ingresos mensuales puedes destinar a invertir de forma constante?",
+    opts:[
+      {text:"Menos del 5%; apenas alcanzo a cubrir mis gastos.", score:0, tag:"<5%"},
+      {text:"Entre el 5% y 15% de mis ingresos.", score:1, tag:"5-15%"},
+      {text:"Entre el 15% y 30% de mis ingresos.", score:2, tag:"15-30%"},
+      {text:"Más del 30%; tengo amplia capacidad de ahorro.", score:3, tag:">30%"},
+    ]
+  },
+  {
+    section:2,
+    text:"¿Cuentas con un fondo de emergencia en caso de perder tus ingresos?",
+    opts:[
+      {text:"No tengo fondo de emergencia.", score:0, tag:"Sin fondo"},
+      {text:"Tengo para cubrir 1 o 2 meses de gastos.", score:1, tag:"1-2 meses"},
+      {text:"Tengo para cubrir 3 a 5 meses de gastos.", score:2, tag:"3-5 meses"},
+      {text:"Sí, tengo más de 6 meses cubiertos.", score:3, tag:"6+ meses"},
+    ]
+  },
+  {
+    section:2,
+    text:"¿Cómo describirías la estabilidad de tus ingresos?",
+    opts:[
+      {text:"Muy variable e incierta; no puedo predecirlos.", score:0, tag:"Inestable"},
+      {text:"Irregular pero generalmente manejable.", score:1, tag:"Variable"},
+      {text:"Estable con pocas variaciones inesperadas.", score:2, tag:"Estable"},
+      {text:"Muy estable y con tendencia creciente.", score:3, tag:"Muy estable"},
+    ]
+  },
+  // SECCIÓN 3: Conocimiento Financiero (Q9-Q11) — max 9
+  {
+    section:3,
+    text:"¿Qué tan familiarizado estás con los diferentes instrumentos de inversión?",
+    opts:[
+      {text:"Poco; apenas conozco cuentas de ahorro básicas.", score:0, tag:"Principiante"},
+      {text:"Conozco CETES, pagarés y fondos de inversión básicos.", score:1, tag:"Básico"},
+      {text:"Conozco acciones, bonos, ETFs y diversificación.", score:2, tag:"Intermedio"},
+      {text:"Conozco derivados, opciones, mercados internacionales y más.", score:3, tag:"Avanzado"},
+    ]
+  },
+  {
+    section:3,
+    text:"¿Con qué frecuencia lees o sigues noticias y análisis del mercado financiero?",
+    opts:[
+      {text:"Nunca o casi nunca.", score:0, tag:"Nunca"},
+      {text:"Ocasionalmente, cuando hay noticias importantes.", score:1, tag:"Ocasional"},
+      {text:"Regularmente, varias veces por semana.", score:2, tag:"Regular"},
+      {text:"Diariamente; es parte de mi rutina.", score:3, tag:"Diario"},
+    ]
+  },
+  {
+    section:3,
+    text:"¿Cuál es tu experiencia previa con inversiones?",
+    opts:[
+      {text:"Ninguna; nunca he invertido.", score:0, tag:"Sin experiencia"},
+      {text:"He usado cuentas de ahorro, CETES o similares.", score:1, tag:"Básica"},
+      {text:"He invertido en fondos de inversión o acciones.", score:2, tag:"Intermedia"},
+      {text:"Tengo experiencia activa en múltiples mercados.", score:3, tag:"Avanzada"},
+    ]
+  },
+];
+
+const SECTIONS = [
+  {label:"Riesgo", icon:"⚖️"},
+  {label:"Horizonte", icon:"🕐"},
+  {label:"Finanzas", icon:"💼"},
+  {label:"Conocimiento", icon:"📊"},
+];
+
+const PROFILES = {
+  conservador:{
+    name:"Conservador",
+    icon:"🛡️",
+    color:"#5c9de0",
+    range:[0,12],
+    tagline:"Priorizas la seguridad y la preservación de tu capital. Prefieres rendimientos predecibles sobre ganancias elevadas con riesgo.",
+    alloc:[
+      {label:"Renta Fija (CETES, Bonos)", pct:60, color:"#5c9de0"},
+      {label:"Fondos de Deuda", pct:25, color:"#3ecf8e"},
+      {label:"Efectivo / Liquidez", pct:10, color:"#c9a84c"},
+      {label:"Renta Variable", pct:5, color:"#e05c5c"},
+    ],
+    recs:[
+      {icon:"🏛️", title:"CETES y Bonos gubernamentales", desc:"Instrumentos de deuda pública con capital garantizado y rendimientos predecibles, ideales para preservar el valor del dinero."},
+      {icon:"📈", title:"Fondos de deuda de corto plazo", desc:"Diversifican el riesgo entre múltiples emisores con mayor liquidez que un bono individual."},
+      {icon:"🔒", title:"Pagarés bancarios con rendimiento garantizado", desc:"Ofrecen tasas ligeramente superiores a las cuentas tradicionales con bajo riesgo crediticio."},
+      {icon:"🎓", title:"Educa tu perfil gradualmente", desc:"Conforme adquieras experiencia y estabilidad financiera, podrás considerar instrumentos con mayor potencial de rendimiento."},
+    ]
+  },
+  moderado:{
+    name:"Moderado",
+    icon:"⚖️",
+    color:"#c9a84c",
+    range:[13,24],
+    tagline:"Buscas un equilibrio entre crecimiento y protección. Aceptas cierta volatilidad a cambio de mejores rendimientos a mediano plazo.",
+    alloc:[
+      {label:"Renta Fija (Bonos, CETES)", pct:40, color:"#5c9de0"},
+      {label:"ETFs y Fondos Indexados", pct:30, color:"#3ecf8e"},
+      {label:"Acciones (Blue Chips)", pct:20, color:"#c9a84c"},
+      {label:"Efectivo / Liquidez", pct:10, color:"#e05c5c"},
+    ],
+    recs:[
+      {icon:"📊", title:"ETFs indexados (S&P 500, BMV)", desc:"Exposure diversificada a los mejores mercados globales con comisiones bajas y sin necesidad de seleccionar empresas individuales."},
+      {icon:"🏢", title:"Acciones de empresas sólidas (Blue Chips)", desc:"Empresas con historial probado, dividendos y menor volatilidad: Walmart, FEMSA, Apple, Coca-Cola."},
+      {icon:"🌐", title:"Fondos de inversión mixtos", desc:"Combinan renta fija y variable gestionados por profesionales, alineados con tu tolerancia al riesgo."},
+      {icon:"🔄", title:"Rebalanceo semestral", desc:"Revisa y ajusta tu portafolio cada 6 meses para mantener las proporciones objetivo y capitalizar oportunidades de mercado."},
+    ]
+  },
+  agresivo:{
+    name:"Agresivo",
+    icon:"🚀",
+    color:"#3ecf8e",
+    range:[25,36],
+    tagline:"Buscas maximizar el retorno a largo plazo. Aceptas alta volatilidad y posibles pérdidas temporales a cambio de crecimiento significativo.",
+    alloc:[
+      {label:"Acciones Individuales", pct:40, color:"#3ecf8e"},
+      {label:"ETFs de Crecimiento", pct:30, color:"#c9a84c"},
+      {label:"Activos Alternativos", pct:15, color:"#e05c5c"},
+      {label:"Renta Fija (Cobertura)", pct:15, color:"#5c9de0"},
+    ],
+    recs:[
+      {icon:"⚡", title:"Acciones de alto crecimiento", desc:"Empresas de tecnología, salud e innovación con alto potencial: Tesla, Nvidia, startups en etapa de expansión."},
+      {icon:"🌍", title:"Mercados emergentes y globales", desc:"ETFs de mercados emergentes (EM) con mayor potencial de apreciación y diversificación geográfica real."},
+      {icon:"₿", title:"Activos alternativos (cripto, REITs)", desc:"Una porción pequeña en activos de alto riesgo/retorno como criptomonedas y bienes raíces puede potenciar el portafolio."},
+      {icon:"📅", title:"Estrategia de largo plazo (7+ años)", desc:"Mantén la disciplina durante los ciclos bajistas; el tiempo en el mercado supera consistentemente al market timing."},
+    ]
+  }
+};
+
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+
+function startQuiz(){
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('quiz-screen').style.display='block';
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  const area = document.getElementById('question-area');
+
+  // Section pill
+  const sec = SECTIONS[q.section];
+  const pill = `<div class="section-pill"><span class="section-icon">${sec.icon}</span>${sec.label}</div>`;
+
+  // Options HTML
+  const optsHtml = q.opts.map((o,i)=>`
+    <div class="opt ${answers[current]===i?'selected':''}" onclick="selectOpt(${i})">
+      <div class="opt-dot"><div class="opt-dot-inner"></div></div>
+      <span class="opt-text">${o.text}</span>
+      <span class="opt-score">${o.tag}</span>
+    </div>
+  `).join('');
+
+  area.innerHTML = `
+    ${pill}
+    <div class="q-card">
+      <div class="q-num">Pregunta ${current+1} de 12</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${optsHtml}</div>
+    </div>
+  `;
+
+  // Progress
+  const pct = (current/12)*100;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('q-current').textContent = current+1;
+
+  // Section labels
+  SECTIONS.forEach((_,i)=>document.getElementById('lbl-'+i).classList.remove('active'));
+  document.getElementById('lbl-'+q.section).classList.add('active');
+
+  // Buttons
+  document.getElementById('btn-back').style.display = current>0?'block':'none';
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = current===11?'Ver mi perfil ✦':'Siguiente →';
+  nextBtn.disabled = answers[current]===null;
+}
+
+function selectOpt(i){
+  answers[current]=i;
+  document.querySelectorAll('.opt').forEach((el,idx)=>{
+    el.classList.toggle('selected', idx===i);
+  });
+  document.getElementById('btn-next').disabled=false;
+}
+
+function goNext(){
+  if(answers[current]===null) return;
+  if(current===11){showResult();return;}
+  current++;
+  renderQuestion();
+}
+
+function goBack(){
+  if(current>0){current--;renderQuestion();}
+}
+
+function computeScores(){
+  const dim=[0,0,0,0];
+  QUESTIONS.forEach((q,i)=>{
+    if(answers[i]!==null) dim[q.section]+=q.opts[answers[i]].score;
+  });
+  return dim;
+}
+
+function showResult(){
+  document.getElementById('quiz-screen').style.display='none';
+  const res = document.getElementById('result-screen');
+  res.style.display='block';
+  res.scrollIntoView({behavior:'smooth'});
+
+  const dims = computeScores();
+  const total = dims.reduce((a,b)=>a+b,0);
+
+  // Determine profile
+  let profileKey = total<=12?'conservador':total<=24?'moderado':'agresivo';
+  const profile = PROFILES[profileKey];
+
+  // Set CSS variable for profile color
+  res.style.setProperty('--profile-color', profile.color);
+
+  // Header
+  document.getElementById('result-icon').textContent = profile.icon;
+  document.getElementById('result-icon-wrap').style.background=`${profile.color}18`;
+  document.getElementById('result-name').textContent = profile.name;
+  document.getElementById('result-name').style.color = profile.color;
+  document.getElementById('result-tagline').textContent = profile.tagline;
+
+  // Total score
+  animateNum('total-score-display', total);
+
+  // Range info
+  document.getElementById('range-info').innerHTML=`
+    <div>Rango <span class="range-val">Conservador: 0–12</span></div>
+    <div>Rango <span class="range-val">Moderado: 13–24</span></div>
+    <div>Rango <span class="range-val">Agresivo: 25–36</span></div>
+  `;
+
+  // Score breakdown
+  const labels=['Tolerancia al Riesgo','Horizonte de Inversión','Situación Financiera','Conocimiento Financiero'];
+  const colors=['#5c9de0','#c9a84c','#3ecf8e','#e05c5c'];
+  const bd = document.getElementById('score-breakdown');
+  bd.innerHTML = dims.map((d,i)=>{
+    const pct = Math.round((d/9)*100);
+    return `
+      <div class="score-card">
+        <div class="score-card-label">${SECTIONS[i].icon} Dimensión ${i+1}</div>
+        <div class="score-card-dim">${labels[i]}</div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" id="bar-${i}" style="width:0%;background:${colors[i]};"></div>
+        </div>
+        <div class="score-card-pts">Puntaje: <strong>${d} / 9</strong> (${pct}%)</div>
+      </div>
+    `;
+  }).join('');
+
+  setTimeout(()=>{
+    dims.forEach((_,i)=>{
+      const pct = Math.round((dims[i]/9)*100);
+      document.getElementById('bar-'+i).style.width=pct+'%';
+    });
+  },200);
+
+  // Radar chart
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['Riesgo','Horizonte','Finanzas','Conocimiento'],
+      datasets:[{
+        label:'Tu perfil',
+        data:dims.map(d=>Math.round((d/9)*100)),
+        backgroundColor:`${profile.color}22`,
+        borderColor:profile.color,
+        borderWidth:2,
+        pointBackgroundColor:profile.color,
+        pointRadius:5,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        r:{
+          min:0,max:100,
+          ticks:{display:false},
+          grid:{color:'rgba(255,255,255,0.07)'},
+          angleLines:{color:'rgba(255,255,255,0.07)'},
+          pointLabels:{
+            color:'rgba(232,228,220,0.7)',
+            font:{size:12,family:'DM Sans'}
+          }
+        }
+      }
+    }
+  });
+
+  // Allocation
+  const ab = document.getElementById('alloc-bars');
+  ab.innerHTML = profile.alloc.map((a,i)=>`
+    <div class="alloc-row">
+      <div class="alloc-label">${a.label}</div>
+      <div class="alloc-track">
+        <div class="alloc-bar" id="alloc-${i}" style="width:0%;background:${a.color};"></div>
+      </div>
+      <div class="alloc-pct">${a.pct}%</div>
+    </div>
+  `).join('');
+
+  setTimeout(()=>{
+    profile.alloc.forEach((_,i)=>{
+      document.getElementById('alloc-'+i).style.width=profile.alloc[i].pct+'%';
+    });
+  },400);
+
+  // Recommendations
+  document.getElementById('rec-grid').innerHTML = profile.recs.map(r=>`
+    <div class="rec-item">
+      <div class="rec-item-icon">${r.icon}</div>
+      <div class="rec-item-text">
+        <strong>${r.title}</strong>
+        <span>${r.desc}</span>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('progress-fill').style.width='100%';
+}
+
+function animateNum(id, target){
+  let n=0; const el=document.getElementById(id);
+  const step=Math.ceil(target/30);
+  const iv=setInterval(()=>{
+    n=Math.min(n+step,target);
+    el.textContent=n;
+    if(n>=target)clearInterval(iv);
+  },40);
+}
+
+function restartQuiz(){
+  current=0;
+  answers=new Array(QUESTIONS.length).fill(null);
+  document.getElementById('result-screen').style.display='none';
+
+  // Destroy chart
+  const c=Chart.getChart('radarChart');
+  if(c)c.destroy();
+
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
