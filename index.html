@@ -3,850 +3,460 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Perfil de Inversión</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>Descubre tu Perfil de Inversión</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --gold: #c9a84c;
-    --gold-light: #e8c97a;
-    --gold-dim: #7a6028;
-    --bg: #07080d;
-    --bg2: #0d0f18;
-    --bg3: #131722;
-    --bg4: #1a1e2e;
-    --text: #e8e4dc;
-    --text-muted: #8a8578;
-    --border: rgba(201,168,76,0.18);
-    --green: #3ecf8e;
-    --red: #e05c5c;
-    --blue: #5c9de0;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'DM Sans',sans-serif;
-    min-height:100vh;
-    overflow-x:hidden;
-  }
+:root{
+  --canvas:#08090b;--s1:#0d0f12;--s2:#121519;--s3:#171b21;
+  --line:rgba(255,255,255,.07);--line-s:rgba(255,255,255,.14);
+  --txt:#e6e7e9;--dim:#767a83;--dimmer:#4a4e56;
+  --acid:#ccff02;--up:#3ddc97;--down:#ff4d5e;--warn:#ffaa33;--info:#5b8def;--alt:#b06cff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--canvas);}
+body{color:var(--txt);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+  background-size:64px 64px;}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.micro{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);}
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;}
 
-  /* Background texture */
-  body::before{
-    content:'';
-    position:fixed;inset:0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(92,157,224,0.04) 0%, transparent 60%);
-    pointer-events:none;z-index:0;
-  }
+.masthead{display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--line);padding:13px 26px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);}
+.mh-mark{color:var(--acid);font-weight:600;}
+.mh-sep{color:var(--dimmer);}
+.mh-right{margin-left:auto;display:flex;gap:18px;}
+.live-dot{display:inline-block;width:5px;height:5px;background:var(--acid);border-radius:50%;margin-right:6px;animation:blink 1.8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-  .container{
-    max-width:760px;margin:0 auto;padding:40px 24px;
-    position:relative;z-index:1;
-  }
+.wrap{max-width:960px;margin:0 auto;padding:0 26px;}
+.hero-tag{display:flex;align-items:center;gap:12px;margin-bottom:26px;}
+.hero-tag .rule{flex:1;height:1px;background:var(--line);}
 
-  /* HEADER */
-  .header{text-align:center;margin-bottom:48px;}
-  .header-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    background:rgba(201,168,76,0.1);border:1px solid var(--border);
-    padding:6px 16px;border-radius:40px;
-    font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;
-    margin-bottom:24px;
-  }
-  .header-badge span{width:6px;height:6px;background:var(--gold);border-radius:50%;display:inline-block;animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  h1{
-    font-family:'Cormorant Garamond',serif;
-    font-size:clamp(2rem,5vw,3.2rem);
-    font-weight:300;
-    letter-spacing:-0.5px;
-    line-height:1.15;
-    color:var(--text);
-    margin-bottom:12px;
-  }
-  h1 em{color:var(--gold);font-style:normal;}
-  .header-sub{
-    font-size:14px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.7;
-  }
+/* ── INTRO ── */
+.intro{padding:80px 0 60px;}
+h1.hero{font-size:clamp(2.9rem,8vw,6rem);font-weight:500;line-height:.95;letter-spacing:-.04em;margin-bottom:26px;}
+h1.hero .hi{color:var(--acid);}
+.hero-lead{font-size:17px;color:var(--dim);line-height:1.75;max-width:620px;margin-bottom:40px;}
+.cta-zone{display:flex;align-items:center;gap:26px;flex-wrap:wrap;margin-bottom:52px;}
+.btn-primary{background:var(--acid);color:#0a0d00;border:none;font-family:'IBM Plex Mono',monospace;
+  font-size:14px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  padding:22px 60px;cursor:pointer;transition:.18s;}
+.btn-primary:hover{background:#dcff3f;transform:translateY(-2px);}
+.cta-note{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.1em;color:var(--dimmer);text-transform:uppercase;line-height:2;}
 
-  /* PROGRESS */
-  .progress-wrap{margin-bottom:40px;}
-  .progress-labels{
-    display:flex;justify-content:space-between;margin-bottom:12px;
-    font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);
-  }
-  .progress-label.active{color:var(--gold);}
-  .progress-track{
-    height:2px;background:rgba(255,255,255,0.06);border-radius:2px;position:relative;
-  }
-  .progress-fill{
-    height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));
-    border-radius:2px;transition:width 0.6s cubic-bezier(.4,0,0.2,1);
-    position:relative;
-  }
-  .progress-fill::after{
-    content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);
-    width:8px;height:8px;background:var(--gold);border-radius:50%;
-    box-shadow:0 0 12px var(--gold);
-  }
-  .progress-count{
-    text-align:right;margin-top:8px;font-size:11px;color:var(--text-muted);
-  }
-  .progress-count strong{color:var(--gold);}
+/* dimensiones en línea horizontal */
+.dims{display:flex;align-items:stretch;border-top:1px solid var(--line-s);border-bottom:1px solid var(--line);
+  margin-bottom:44px;flex-wrap:wrap;}
+.dim{flex:1;min-width:190px;padding:22px 0 22px 22px;border-left:1px solid var(--line);}
+.dim:first-child{padding-left:0;border-left:none;}
+.dim-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.1em;margin-bottom:9px;}
+.dim-name{font-size:15.5px;font-weight:500;letter-spacing:-.01em;line-height:1.35;}
+.dim-bar{width:26px;height:2px;margin-top:11px;}
 
-  /* SECTION PILL */
-  .section-pill{
-    display:inline-flex;align-items:center;gap:8px;
-    background:var(--bg3);border:1px solid var(--border);
-    padding:8px 18px;border-radius:30px;margin-bottom:24px;
-    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);
-  }
-  .section-icon{font-size:14px;}
+.specs{display:flex;gap:40px;flex-wrap:wrap;margin-bottom:56px;}
+.spec-k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.spec-v{font-family:'IBM Plex Mono',monospace;font-size:20px;color:var(--acid);font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
 
-  /* QUESTION CARD */
-  .q-card{
-    background:var(--bg2);
-    border:1px solid rgba(255,255,255,0.06);
-    border-radius:20px;
-    padding:36px;
-    margin-bottom:24px;
-    animation:fadeSlide .4s ease both;
-  }
-  @keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-  .q-num{
-    font-size:10px;letter-spacing:2px;text-transform:uppercase;
-    color:var(--text-muted);margin-bottom:10px;
-  }
-  .q-text{
-    font-family:'Cormorant Garamond',serif;
-    font-size:clamp(1.15rem,3vw,1.45rem);
-    font-weight:400;line-height:1.4;
-    color:var(--text);margin-bottom:28px;
-  }
+/* ── PIE DE AUTOR ── */
+.credit{border-top:1px solid var(--line);padding:26px 0 60px;}
+.credit-name{font-size:16px;font-weight:500;letter-spacing:-.01em;color:var(--txt);margin-bottom:7px;}
+.credit-name .reg{color:var(--acid);font-size:.72em;vertical-align:super;margin-left:3px;font-weight:600;}
+.credit-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);}
 
-  /* OPTIONS */
-  .options{display:flex;flex-direction:column;gap:10px;}
-  .opt{
-    display:flex;align-items:center;gap:14px;
-    padding:16px 20px;
-    background:var(--bg3);
-    border:1px solid rgba(255,255,255,0.05);
-    border-radius:12px;
-    cursor:pointer;
-    transition:all .25s ease;
-    position:relative;overflow:hidden;
-  }
-  .opt::before{
-    content:'';position:absolute;inset:0;
-    background:linear-gradient(135deg,rgba(201,168,76,0.08),transparent);
-    opacity:0;transition:opacity .25s;
-  }
-  .opt:hover{border-color:rgba(201,168,76,0.3);}
-  .opt:hover::before{opacity:1;}
-  .opt.selected{
-    border-color:var(--gold);
-    background:rgba(201,168,76,0.07);
-  }
-  .opt.selected::before{opacity:1;}
-  .opt-dot{
-    width:18px;height:18px;min-width:18px;border-radius:50%;
-    border:1.5px solid rgba(255,255,255,0.2);
-    transition:all .2s;display:flex;align-items:center;justify-content:center;
-  }
-  .opt.selected .opt-dot{
-    border-color:var(--gold);background:var(--gold);
-  }
-  .opt-dot-inner{width:7px;height:7px;background:var(--bg);border-radius:50%;opacity:0;transition:.2s;}
-  .opt.selected .opt-dot-inner{opacity:1;}
-  .opt-score{
-    margin-left:auto;font-size:10px;letter-spacing:1px;
-    color:var(--text-muted);padding:3px 10px;
-    background:rgba(255,255,255,0.04);border-radius:20px;
-    white-space:nowrap;
-  }
-  .opt.selected .opt-score{color:var(--gold);}
-  .opt-text{font-size:13.5px;line-height:1.4;color:var(--text);}
+/* ── CUESTIONARIO ── */
+.quiz{padding:34px 0 70px;}
+.pstrip{display:flex;gap:3px;margin-bottom:12px;}
+.pseg{flex:1;height:3px;background:rgba(255,255,255,.08);transition:.3s;}
+.pseg.done{background:var(--dimmer);}
+.pseg.now{background:var(--acid);}
+.pmeta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:40px;}
+.pmeta b{color:var(--acid);font-weight:600;}
 
-  /* BUTTONS */
-  .nav-row{display:flex;justify-content:flex-end;gap:12px;margin-top:32px;}
-  .btn{
-    padding:13px 32px;border-radius:50px;border:none;cursor:pointer;
-    font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:.5px;
-    transition:all .25s ease;font-weight:500;
-  }
-  .btn-ghost{
-    background:transparent;border:1px solid rgba(255,255,255,0.1);
-    color:var(--text-muted);
-  }
-  .btn-ghost:hover{border-color:rgba(255,255,255,0.25);color:var(--text);}
-  .btn-primary{
-    background:linear-gradient(135deg,#b8932a,var(--gold));
-    color:#0a0800;font-weight:600;
-    box-shadow:0 4px 20px rgba(201,168,76,0.3);
-  }
-  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,0.4);}
-  .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.q-panel{border:1px solid var(--line);background:var(--s1);padding:36px 38px;position:relative;margin-bottom:26px;}
+.q-panel::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--q-color,var(--acid));}
+.q-top{display:flex;align-items:baseline;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+.q-code{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--q-color,var(--acid));letter-spacing:.02em;}
+.q-cat{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);}
+.q-text{font-size:clamp(1.35rem,3.2vw,1.9rem);font-weight:500;line-height:1.4;letter-spacing:-.02em;}
 
-  /* START SCREEN */
-  #start-screen{text-align:center;padding:20px 0;}
-  .dimensions-grid{
-    display:grid;grid-template-columns:1fr 1fr;gap:14px;
-    margin:40px 0;text-align:left;
-  }
-  .dim-card{
-    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
-    border-radius:16px;padding:20px;
-    transition:.25s;
-  }
-  .dim-card:hover{border-color:var(--border);}
-  .dim-icon{font-size:22px;margin-bottom:10px;}
-  .dim-title{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
-  .dim-desc{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:30px;}
+.opt{display:flex;align-items:flex-start;gap:16px;border:1px solid var(--line);background:var(--s2);
+  padding:19px 22px;cursor:pointer;transition:.16s;text-align:left;font-family:'Space Grotesk',sans-serif;
+  font-size:15.5px;color:var(--txt);line-height:1.5;width:100%;}
+.opt:hover{border-color:var(--line-s);background:var(--s3);}
+.opt.sel{border-color:var(--acid);background:rgba(204,255,2,.06);}
+.opt .lt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);flex-shrink:0;padding-top:2px;}
+.opt.sel .lt{color:var(--acid);}
+.opt .tag{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dimmer);white-space:nowrap;padding-top:3px;}
+.opt.sel .tag{color:var(--acid);}
 
-  /* RESULTS */
-  #result-screen{display:none;animation:fadeSlide .5s ease;}
-  .result-header{text-align:center;margin-bottom:40px;}
-  .profile-badge{
-    display:inline-flex;flex-direction:column;align-items:center;
-    gap:12px;margin-bottom:28px;
-  }
-  .profile-icon-wrap{
-    width:100px;height:100px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:42px;position:relative;
-  }
-  .profile-icon-wrap::after{
-    content:'';position:absolute;inset:-4px;border-radius:50%;
-    border:1.5px solid var(--profile-color);opacity:.5;
-    animation:spin 8s linear infinite;
-    border-top-color:transparent;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .profile-name{
-    font-family:'Cormorant Garamond',serif;
-    font-size:2.6rem;font-weight:300;
-    color:var(--profile-color);
-  }
-  .profile-tagline{font-size:13px;color:var(--text-muted);max-width:400px;margin:0 auto;line-height:1.7;}
+.nav{display:flex;justify-content:space-between;gap:12px;}
+.btn-ghost{background:transparent;border:1px solid var(--line-s);color:var(--dim);font-family:'IBM Plex Mono',monospace;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px 30px;cursor:pointer;transition:.18s;}
+.btn-ghost:hover{border-color:var(--txt);color:var(--txt);}
+.btn-next{background:var(--acid);color:#0a0d00;border:none;font-family:'IBM Plex Mono',monospace;
+  font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:16px 42px;cursor:pointer;transition:.18s;}
+.btn-next:hover:not(:disabled){background:#dcff3f;}
+.btn-next:disabled{background:var(--s3);color:var(--dimmer);cursor:not-allowed;}
 
-  /* Score breakdown */
-  .score-breakdown{
-    display:grid;grid-template-columns:1fr 1fr;gap:14px;
-    margin:32px 0;
-  }
-  .score-card{
-    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
-    border-radius:16px;padding:20px;
-  }
-  .score-card-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
-  .score-card-dim{font-size:12px;color:var(--text);margin-bottom:14px;font-weight:500;}
-  .score-bar-track{height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;}
-  .score-bar-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
-  .score-card-pts{font-size:11px;color:var(--text-muted);margin-top:8px;}
-  .score-card-pts strong{color:var(--text);}
+/* ── RESULTADOS ── */
+.res{padding:56px 0 80px;}
+h2.verdict{font-size:clamp(2.4rem,6.5vw,4.2rem);font-weight:500;letter-spacing:-.04em;line-height:1;margin-bottom:22px;}
+.verdict-lead{font-size:16.5px;color:var(--dim);line-height:1.75;max-width:620px;margin-bottom:48px;}
+.score-block{border:1px solid var(--line-s);background:var(--s1);padding:34px 34px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+.score-v{font-family:'IBM Plex Mono',monospace;font-size:clamp(3.4rem,11vw,6rem);font-weight:500;
+  line-height:.9;letter-spacing:-.05em;color:var(--acid);font-variant-numeric:tabular-nums;}
+.score-v small{font-size:.28em;color:var(--dim);letter-spacing:.04em;}
+.ranges{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--dimmer);line-height:2.1;text-align:right;}
+.ranges .on{color:var(--acid);}
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-s);border-left:1px solid var(--line);margin-bottom:22px;}
+.dcell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 22px;}
+.dcell-k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.dcell-n{font-size:15px;font-weight:500;margin-bottom:14px;letter-spacing:-.01em;}
+.dtrack{height:4px;background:rgba(255,255,255,.06);}
+.dfill{height:100%;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.dcell-v{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);margin-top:10px;font-variant-numeric:tabular-nums;}
+.dcell-v b{color:var(--txt);font-weight:600;}
+.panel{border:1px solid var(--line);background:var(--s1);padding:30px;margin-bottom:22px;}
+.alloc{margin-bottom:16px;}
+.alloc:last-child{margin-bottom:0;}
+.alloc-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.alloc-k{font-size:14.5px;color:var(--txt);}
+.alloc-p{font-family:'IBM Plex Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;}
+.atrack{height:10px;background:rgba(255,255,255,.05);}
+.afill{height:100%;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.recs{border-top:1px solid var(--line-s);margin-bottom:44px;}
+.rec{display:grid;grid-template-columns:56px 1fr;gap:22px;padding:26px 0;border-bottom:1px solid var(--line);}
+.rec-i{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--acid);letter-spacing:.1em;}
+.rec-h{font-size:16px;font-weight:500;margin-bottom:10px;letter-spacing:-.01em;}
+.rec-b{font-size:14.5px;color:var(--dim);line-height:1.75;max-width:680px;}
+.btn-reset{background:transparent;border:1px solid var(--line-s);color:var(--txt);font-family:'IBM Plex Mono',monospace;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:17px 42px;cursor:pointer;transition:.18s;}
+.btn-reset:hover{border-color:var(--acid);color:var(--acid);}
 
-  /* Radar chart */
-  .chart-wrap{
-    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
-    border-radius:20px;padding:28px;margin-bottom:24px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .chart-canvas{max-width:300px;max-height:300px;}
-
-  /* Recommendations */
-  .rec-section{margin-bottom:24px;}
-  .rec-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.5rem;font-weight:400;color:var(--text);margin-bottom:20px;
-  }
-  .rec-grid{display:flex;flex-direction:column;gap:12px;}
-  .rec-item{
-    display:flex;gap:14px;align-items:flex-start;
-    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
-    border-radius:14px;padding:18px;
-  }
-  .rec-item-icon{font-size:20px;margin-top:1px;}
-  .rec-item-text{}
-  .rec-item-text strong{font-size:13px;color:var(--text);display:block;margin-bottom:4px;}
-  .rec-item-text span{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
-
-  /* Allocation chart */
-  .alloc-section{
-    background:var(--bg2);border:1px solid rgba(255,255,255,0.05);
-    border-radius:20px;padding:28px;margin-bottom:24px;
-  }
-  .alloc-title{
-    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
-    color:var(--text-muted);margin-bottom:20px;
-  }
-  .alloc-bars{display:flex;flex-direction:column;gap:14px;}
-  .alloc-row{display:flex;align-items:center;gap:14px;}
-  .alloc-label{font-size:12.5px;color:var(--text);width:140px;flex-shrink:0;}
-  .alloc-track{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;}
-  .alloc-bar{height:100%;border-radius:8px;transition:width 1.4s cubic-bezier(.4,0,.2,1);}
-  .alloc-pct{font-size:12px;color:var(--text-muted);width:38px;text-align:right;}
-
-  /* Footer result */
-  .result-footer{text-align:center;padding-top:16px;}
-  .restart-btn{
-    background:transparent;border:1px solid rgba(201,168,76,0.25);
-    color:var(--gold);padding:12px 30px;border-radius:50px;
-    cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;
-    transition:.25s;
-  }
-  .restart-btn:hover{background:rgba(201,168,76,0.08);border-color:var(--gold);}
-
-  /* Score total */
-  .total-score-wrap{
-    display:flex;align-items:center;justify-content:center;gap:32px;
-    background:var(--bg3);border:1px solid var(--border);
-    border-radius:16px;padding:20px 28px;margin-bottom:28px;
-  }
-  .total-score-num{
-    font-family:'Cormorant Garamond',serif;font-size:3.5rem;
-    font-weight:300;color:var(--gold);line-height:1;
-  }
-  .total-score-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);}
-  .total-score-max{font-size:13px;color:var(--text-muted);}
-  .total-divider{width:1px;height:48px;background:rgba(255,255,255,0.08);}
-  .profile-range-wrap{font-size:12px;color:var(--text-muted);line-height:1.8;}
-  .profile-range-wrap .range-val{color:var(--text);}
-
-  @media(max-width:560px){
-    .dimensions-grid{grid-template-columns:1fr;}
-    .score-breakdown{grid-template-columns:1fr;}
-    .total-score-wrap{flex-direction:column;gap:16px;}
-    .total-divider{width:48px;height:1px;}
-    .q-card{padding:24px;}
-  }
+@media(max-width:760px){
+  .dims{flex-direction:column;}
+  .dim{border-left:none;border-top:1px solid var(--line);padding:18px 0;}
+  .dim:first-child{border-top:none;}
+  .dgrid{grid-template-columns:1fr;}
+  .rec{grid-template-columns:1fr;gap:8px;}
+  .q-panel{padding:26px 24px;}
+  .btn-primary{width:100%;}
+  .ranges{text-align:left;}
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-badge">
-      <span></span> Análisis de Perfil
-    </div>
-    <h1>Tu <em>Perfil de</em><br/>Inversión</h1>
-    <p class="header-sub">Cuestionario profesional de 12 preguntas que evalúa 4 dimensiones clave para determinar tu estrategia de inversión ideal.</p>
+<!-- ═══ INTRO ═══ -->
+<div id="s-intro" class="screen active">
+  <div class="masthead">
+    <span class="mh-mark">PI</span><span class="mh-sep">/</span><span>Perfil de Inversión</span>
+    <span class="mh-sep">/</span><span>Instrumento de diagnóstico</span>
+    <div class="mh-right"><span>Rel. 2.0</span><span>MXN</span></div>
   </div>
 
-  <!-- START SCREEN -->
-  <div id="start-screen">
-    <div class="dimensions-grid">
-      <div class="dim-card">
-        <div class="dim-icon">⚖️</div>
-        <div class="dim-title">Tolerancia al Riesgo</div>
-        <div class="dim-desc">Cómo reaccionas ante la volatilidad y pérdidas potenciales en tu portafolio.</div>
-      </div>
-      <div class="dim-card">
-        <div class="dim-icon">🕐</div>
-        <div class="dim-title">Horizonte de Inversión</div>
-        <div class="dim-desc">El tiempo disponible para invertir y tus objetivos financieros a futuro.</div>
-      </div>
-      <div class="dim-card">
-        <div class="dim-icon">💼</div>
-        <div class="dim-title">Situación Financiera</div>
-        <div class="dim-desc">Tu capacidad de ahorro, estabilidad de ingresos y fondo de emergencia.</div>
-      </div>
-      <div class="dim-card">
-        <div class="dim-icon">📊</div>
-        <div class="dim-title">Conocimiento Financiero</div>
-        <div class="dim-desc">Tu nivel de experiencia con instrumentos y mercados de inversión.</div>
-      </div>
-    </div>
-    <div class="nav-row" style="justify-content:center;">
-      <button class="btn btn-primary" onclick="startQuiz()">Comenzar evaluación →</button>
-    </div>
-  </div>
+  <div class="wrap intro">
+    <div class="hero-tag"><span class="micro">Evaluación de perfil del inversionista</span><span class="rule"></span></div>
+    <h1 class="hero">Descubre tu<br/><span class="hi">Perfil de Inversión</span></h1>
+    <p class="hero-lead">Doce reactivos que miden cómo respondes ante el riesgo, cuánto tiempo puedes esperar, qué tan sólida es tu posición y qué tanto dominas los instrumentos. Al cierre obtienes una estrategia de asignación con nombre y proporciones.</p>
 
-  <!-- QUIZ SCREEN -->
-  <div id="quiz-screen" style="display:none;">
-    <div class="progress-wrap">
-      <div class="progress-labels">
-        <span class="progress-label" id="lbl-0">Riesgo</span>
-        <span class="progress-label" id="lbl-1">Horizonte</span>
-        <span class="progress-label" id="lbl-2">Finanzas</span>
-        <span class="progress-label" id="lbl-3">Conocimiento</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-      <div class="progress-count">Pregunta <strong id="q-current">1</strong> de <strong>12</strong></div>
+    <div class="cta-zone">
+      <button class="btn-primary" onclick="start()">Iniciar evaluación</button>
+      <span class="cta-note">12 reactivos · 4 dimensiones<br/>Sin registro · Resultados locales</span>
     </div>
-    <div id="question-area"></div>
-    <div class="nav-row">
-      <button class="btn btn-ghost" id="btn-back" onclick="goBack()" style="display:none;">← Anterior</button>
-      <button class="btn btn-primary" id="btn-next" onclick="goNext()" disabled>Siguiente →</button>
+
+    <div class="dims">
+      <div class="dim">
+        <div class="dim-code" style="color:var(--down)">RSG</div>
+        <div class="dim-name">Tolerancia al riesgo</div>
+        <div class="dim-bar" style="background:var(--down)"></div>
+      </div>
+      <div class="dim">
+        <div class="dim-code" style="color:var(--warn)">HOR</div>
+        <div class="dim-name">Horizonte de inversión</div>
+        <div class="dim-bar" style="background:var(--warn)"></div>
+      </div>
+      <div class="dim">
+        <div class="dim-code" style="color:var(--up)">FIN</div>
+        <div class="dim-name">Situación financiera</div>
+        <div class="dim-bar" style="background:var(--up)"></div>
+      </div>
+      <div class="dim">
+        <div class="dim-code" style="color:var(--info)">CON</div>
+        <div class="dim-name">Conocimiento financiero</div>
+        <div class="dim-bar" style="background:var(--info)"></div>
+      </div>
+    </div>
+
+    <div class="specs">
+      <div><div class="spec-k">Reactivos</div><div class="spec-v">12</div></div>
+      <div><div class="spec-k">Dimensiones</div><div class="spec-v">4</div></div>
+      <div><div class="spec-k">Escala</div><div class="spec-v">0 – 36</div></div>
+      <div><div class="spec-k">Perfiles</div><div class="spec-v">3</div></div>
+      <div><div class="spec-k">Duración</div><div class="spec-v">3 min</div></div>
     </div>
   </div>
 
-  <!-- RESULT SCREEN -->
-  <div id="result-screen">
-    <div class="result-header">
-      <div class="profile-badge">
-        <div class="profile-icon-wrap" id="result-icon-wrap" style="background:rgba(0,0,0,0.3);">
-          <span id="result-icon">🛡️</span>
-        </div>
-        <div class="profile-name" id="result-name">Conservador</div>
-      </div>
-      <p class="profile-tagline" id="result-tagline"></p>
-    </div>
+  <div class="wrap"><div class="credit">
+    <div class="credit-name">By: Dr. José Alfredo Torres Grimaldo<span class="reg">®</span></div>
+    <div class="credit-sub">Derechos Reservados</div>
+  </div></div>
+</div>
 
-    <div class="total-score-wrap">
+<!-- ═══ CUESTIONARIO ═══ -->
+<div id="s-quiz" class="screen">
+  <div class="masthead">
+    <span class="mh-mark">PI</span><span class="mh-sep">/</span><span>Evaluación en curso</span>
+    <div class="mh-right"><span><span class="live-dot"></span>Activa</span><span id="mh-q">01/12</span></div>
+  </div>
+  <div class="wrap quiz">
+    <div class="pstrip" id="pstrip"></div>
+    <div class="pmeta">
+      <span id="pm-dim">Dimensión</span>
+      <span>Reactivo <b id="pm-n">01</b> de 12</span>
+    </div>
+    <div class="q-panel" id="q-panel">
+      <div class="q-top"><span class="q-code" id="q-code"></span><span class="q-cat" id="q-cat"></span></div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="opts" id="opts"></div>
+    <div class="nav">
+      <button class="btn-ghost" id="b-back" onclick="back()">Anterior</button>
+      <button class="btn-next" id="b-next" onclick="next()" disabled>Siguiente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESULTADOS ═══ -->
+<div id="s-res" class="screen">
+  <div class="masthead">
+    <span class="mh-mark">PI</span><span class="mh-sep">/</span><span>Diagnóstico completo</span>
+    <div class="mh-right"><span>12/12 reactivos</span><span>Informe final</span></div>
+  </div>
+  <div class="wrap res">
+    <div class="hero-tag"><span class="micro" id="v-tag"></span><span class="rule"></span></div>
+    <h2 class="verdict" id="verdict"></h2>
+    <p class="verdict-lead" id="verdict-lead"></p>
+
+    <div class="score-block">
       <div>
-        <div class="total-score-num" id="total-score-display">0</div>
-        <div class="total-score-max">/ 36 puntos totales</div>
+        <div class="micro" style="margin-bottom:14px">Puntaje total</div>
+        <div class="score-v" id="score">0<small> / 36</small></div>
       </div>
-      <div class="total-divider"></div>
-      <div class="profile-range-wrap" id="range-info"></div>
+      <div class="ranges" id="ranges"></div>
     </div>
 
-    <div class="score-breakdown" id="score-breakdown"></div>
+    <div class="hero-tag" style="margin-bottom:0"><span class="micro">Desempeño por dimensión</span><span class="rule"></span></div>
+    <div class="dgrid" id="dgrid"></div>
 
-    <div class="chart-wrap">
-      <canvas class="chart-canvas" id="radarChart"></canvas>
-    </div>
+    <div class="hero-tag" style="margin-bottom:0"><span class="micro">Perfil dimensional</span><span class="rule"></span></div>
+    <div class="panel" style="display:flex;justify-content:center"><canvas id="radar" style="max-height:300px;max-width:340px;"></canvas></div>
 
-    <div class="alloc-section">
-      <div class="alloc-title">Distribución de Portafolio Sugerida</div>
-      <div class="alloc-bars" id="alloc-bars"></div>
-    </div>
+    <div class="hero-tag" style="margin-bottom:0"><span class="micro">Asignación sugerida de portafolio</span><span class="rule"></span></div>
+    <div class="panel" id="alloc"></div>
 
-    <div class="rec-section">
-      <div class="rec-title">Recomendaciones para tu perfil</div>
-      <div class="rec-grid" id="rec-grid"></div>
-    </div>
+    <div class="hero-tag" style="margin-bottom:0"><span class="micro">Recomendaciones</span><span class="rule"></span></div>
+    <div class="recs" id="recs"></div>
 
-    <div class="result-footer">
-      <button class="restart-btn" onclick="restartQuiz()">↺ Volver a evaluar</button>
-    </div>
+    <button class="btn-reset" onclick="reset()">Repetir evaluación</button>
   </div>
-
+  <div class="wrap"><div class="credit">
+    <div class="credit-name">By: Dr. José Alfredo Torres Grimaldo<span class="reg">®</span></div>
+    <div class="credit-sub">Derechos Reservados</div>
+  </div></div>
 </div>
 
 <script>
-const QUESTIONS = [
-  // SECCIÓN 0: Tolerancia al Riesgo (Q0-Q2) — max 9
-  {
-    section:0,
-    text:"Si tu cartera de inversión cayera un 20% en un mes, ¿qué harías?",
-    opts:[
-      {text:"Vendería todo inmediatamente para evitar mayores pérdidas.", score:0, tag:"Muy conservador"},
-      {text:"Vendería una parte para reducir mi exposición al riesgo.", score:1, tag:"Conservador"},
-      {text:"No haría nada; esperaría pacientemente la recuperación.", score:2, tag:"Moderado"},
-      {text:"Aprovecharía y compraría más al precio más bajo.", score:3, tag:"Agresivo"},
-    ]
-  },
-  {
-    section:0,
-    text:"¿Qué combinación de rendimiento y riesgo prefieres?",
-    opts:[
-      {text:"Rendimiento bajo pero garantizado (CETES, pagarés).", score:0, tag:"Muy conservador"},
-      {text:"Rendimiento moderado con riesgo controlado.", score:1, tag:"Conservador"},
-      {text:"Rendimiento alto con riesgo moderado.", score:2, tag:"Moderado"},
-      {text:"Máximo rendimiento posible aunque implique alta volatilidad.", score:3, tag:"Agresivo"},
-    ]
-  },
-  {
-    section:0,
-    text:"¿Cómo te afecta emocionalmente una pérdida significativa en tus inversiones?",
-    opts:[
-      {text:"Me genera mucho estrés; afecta mi sueño y concentración.", score:0, tag:"Alta sensibilidad"},
-      {text:"Me preocupa bastante y reviso mis inversiones constantemente.", score:1, tag:"Sensible"},
-      {text:"Lo acepto como parte natural del proceso de inversión.", score:2, tag:"Ecuánime"},
-      {text:"Las veo como oportunidades; mantengo total calma.", score:3, tag:"Resiliente"},
-    ]
-  },
-  // SECCIÓN 1: Horizonte de Inversión (Q3-Q5) — max 9
-  {
-    section:1,
-    text:"¿En cuánto tiempo planeas necesitar o utilizar el dinero que vas a invertir?",
-    opts:[
-      {text:"En menos de 1 año.", score:0, tag:"Corto plazo"},
-      {text:"Entre 1 y 3 años.", score:1, tag:"Corto-mediano"},
-      {text:"Entre 3 y 7 años.", score:2, tag:"Mediano plazo"},
-      {text:"Más de 7 años; es una inversión de largo plazo.", score:3, tag:"Largo plazo"},
-    ]
-  },
-  {
-    section:1,
-    text:"¿Cuál es tu principal objetivo al invertir?",
-    opts:[
-      {text:"Proteger mi capital de la inflación sin perder valor.", score:0, tag:"Preservación"},
-      {text:"Generar ingresos pasivos estables y predecibles.", score:1, tag:"Ingreso"},
-      {text:"Hacer crecer mi patrimonio a mediano plazo.", score:2, tag:"Crecimiento"},
-      {text:"Maximizar el retorno a largo plazo, sin importar volatilidad.", score:3, tag:"Máx. retorno"},
-    ]
-  },
-  {
-    section:1,
-    text:"¿Tienes compromisos financieros importantes (deudas, gastos mayores) en los próximos 3 años?",
-    opts:[
-      {text:"Sí, varios e importantes que requieren liquidez.", score:0, tag:"Alta carga"},
-      {text:"Sí, algunos que debo considerar en mi planeación.", score:1, tag:"Carga moderada"},
-      {text:"Pocos y perfectamente manejables.", score:2, tag:"Baja carga"},
-      {text:"No, tengo total flexibilidad financiera.", score:3, tag:"Sin carga"},
-    ]
-  },
-  // SECCIÓN 2: Situación Financiera (Q6-Q8) — max 9
-  {
-    section:2,
-    text:"¿Qué porcentaje de tus ingresos mensuales puedes destinar a invertir de forma constante?",
-    opts:[
-      {text:"Menos del 5%; apenas alcanzo a cubrir mis gastos.", score:0, tag:"<5%"},
-      {text:"Entre el 5% y 15% de mis ingresos.", score:1, tag:"5-15%"},
-      {text:"Entre el 15% y 30% de mis ingresos.", score:2, tag:"15-30%"},
-      {text:"Más del 30%; tengo amplia capacidad de ahorro.", score:3, tag:">30%"},
-    ]
-  },
-  {
-    section:2,
-    text:"¿Cuentas con un fondo de emergencia en caso de perder tus ingresos?",
-    opts:[
-      {text:"No tengo fondo de emergencia.", score:0, tag:"Sin fondo"},
-      {text:"Tengo para cubrir 1 o 2 meses de gastos.", score:1, tag:"1-2 meses"},
-      {text:"Tengo para cubrir 3 a 5 meses de gastos.", score:2, tag:"3-5 meses"},
-      {text:"Sí, tengo más de 6 meses cubiertos.", score:3, tag:"6+ meses"},
-    ]
-  },
-  {
-    section:2,
-    text:"¿Cómo describirías la estabilidad de tus ingresos?",
-    opts:[
-      {text:"Muy variable e incierta; no puedo predecirlos.", score:0, tag:"Inestable"},
-      {text:"Irregular pero generalmente manejable.", score:1, tag:"Variable"},
-      {text:"Estable con pocas variaciones inesperadas.", score:2, tag:"Estable"},
-      {text:"Muy estable y con tendencia creciente.", score:3, tag:"Muy estable"},
-    ]
-  },
-  // SECCIÓN 3: Conocimiento Financiero (Q9-Q11) — max 9
-  {
-    section:3,
-    text:"¿Qué tan familiarizado estás con los diferentes instrumentos de inversión?",
-    opts:[
-      {text:"Poco; apenas conozco cuentas de ahorro básicas.", score:0, tag:"Principiante"},
-      {text:"Conozco CETES, pagarés y fondos de inversión básicos.", score:1, tag:"Básico"},
-      {text:"Conozco acciones, bonos, ETFs y diversificación.", score:2, tag:"Intermedio"},
-      {text:"Conozco derivados, opciones, mercados internacionales y más.", score:3, tag:"Avanzado"},
-    ]
-  },
-  {
-    section:3,
-    text:"¿Con qué frecuencia lees o sigues noticias y análisis del mercado financiero?",
-    opts:[
-      {text:"Nunca o casi nunca.", score:0, tag:"Nunca"},
-      {text:"Ocasionalmente, cuando hay noticias importantes.", score:1, tag:"Ocasional"},
-      {text:"Regularmente, varias veces por semana.", score:2, tag:"Regular"},
-      {text:"Diariamente; es parte de mi rutina.", score:3, tag:"Diario"},
-    ]
-  },
-  {
-    section:3,
-    text:"¿Cuál es tu experiencia previa con inversiones?",
-    opts:[
-      {text:"Ninguna; nunca he invertido.", score:0, tag:"Sin experiencia"},
-      {text:"He usado cuentas de ahorro, CETES o similares.", score:1, tag:"Básica"},
-      {text:"He invertido en fondos de inversión o acciones.", score:2, tag:"Intermedia"},
-      {text:"Tengo experiencia activa en múltiples mercados.", score:3, tag:"Avanzada"},
-    ]
-  },
+const DIMS=[
+  {code:'RSG',name:'Tolerancia al riesgo',color:'var(--down)',hex:'#ff4d5e'},
+  {code:'HOR',name:'Horizonte de inversión',color:'var(--warn)',hex:'#ffaa33'},
+  {code:'FIN',name:'Situación financiera',color:'var(--up)',hex:'#3ddc97'},
+  {code:'CON',name:'Conocimiento financiero',color:'var(--info)',hex:'#5b8def'},
 ];
 
-const SECTIONS = [
-  {label:"Riesgo", icon:"⚖️"},
-  {label:"Horizonte", icon:"🕐"},
-  {label:"Finanzas", icon:"💼"},
-  {label:"Conocimiento", icon:"📊"},
+const Q=[
+ {d:0,t:'Si tu cartera perdiera 20% de su valor en un solo mes, ¿cómo actuarías?',
+  o:[['Liquidaría todo de inmediato para frenar la pérdida','Aversión alta'],
+     ['Vendería una parte para reducir mi exposición','Aversión moderada'],
+     ['Sostendría la posición y esperaría la recuperación','Neutral'],
+     ['Aprovecharía el retroceso para incrementar posiciones','Tolerancia alta']]},
+ {d:0,t:'¿Qué combinación de rendimiento y riesgo describe mejor lo que buscas?',
+  o:[['Rendimiento bajo con capital garantizado','Conservador'],
+     ['Rendimiento moderado con riesgo acotado','Moderado bajo'],
+     ['Rendimiento alto asumiendo riesgo intermedio','Moderado alto'],
+     ['Máximo rendimiento posible aun con alta volatilidad','Agresivo']]},
+ {d:0,t:'¿Qué efecto tiene sobre ti una minusvalía significativa en tus inversiones?',
+  o:[['Genera estrés considerable y afecta mi descanso','Sensibilidad alta'],
+     ['Me preocupa y reviso mis posiciones con frecuencia','Sensibilidad media'],
+     ['La asumo como parte normal del ciclo de mercado','Ecuánime'],
+     ['La interpreto como oportunidad y mantengo la calma','Resiliente']]},
+ {d:1,t:'¿En cuánto tiempo prevés necesitar el capital que vas a invertir?',
+  o:[['En menos de un año','Corto plazo'],
+     ['Entre uno y tres años','Corto a medio'],
+     ['Entre tres y siete años','Medio plazo'],
+     ['Más de siete años','Largo plazo']]},
+ {d:1,t:'¿Cuál es tu objetivo principal al invertir?',
+  o:[['Proteger el capital frente a la inflación','Preservación'],
+     ['Generar un flujo de ingresos estable y predecible','Ingreso'],
+     ['Hacer crecer el patrimonio en el mediano plazo','Crecimiento'],
+     ['Maximizar el retorno acumulado a largo plazo','Retorno máximo']]},
+ {d:1,t:'¿Tienes compromisos financieros relevantes en los próximos tres años?',
+  o:[['Varios compromisos que exigen liquidez inmediata','Carga alta'],
+     ['Algunos que debo considerar en la planeación','Carga moderada'],
+     ['Pocos y perfectamente manejables','Carga baja'],
+     ['Ninguno, cuento con plena flexibilidad','Sin carga']]},
+ {d:2,t:'¿Qué proporción de tu ingreso mensual puedes destinar a invertir de forma constante?',
+  o:[['Menos del 5%; cubro apenas mis gastos','Menos de 5%'],
+     ['Entre 5% y 15% del ingreso','5% a 15%'],
+     ['Entre 15% y 30% del ingreso','15% a 30%'],
+     ['Más del 30%; tengo amplio margen de ahorro','Más de 30%']]},
+ {d:2,t:'¿Con qué reserva cuentas si perdieras tu fuente de ingreso?',
+  o:[['No cuento con fondo de emergencia','Sin reserva'],
+     ['Cubro entre uno y dos meses de gasto','1 a 2 meses'],
+     ['Cubro entre tres y cinco meses de gasto','3 a 5 meses'],
+     ['Cubro seis meses o más','6 meses o más']]},
+ {d:2,t:'¿Cómo describirías la estabilidad de tus ingresos?',
+  o:[['Muy variable; no puedo anticiparlos','Inestable'],
+     ['Irregular pero generalmente manejable','Variable'],
+     ['Estable con pocas variaciones','Estable'],
+     ['Muy estable y con tendencia creciente','Muy estable']]},
+ {d:3,t:'¿Qué tan familiarizado estás con los instrumentos de inversión disponibles?',
+  o:[['Solo conozco cuentas de ahorro bancarias','Inicial'],
+     ['Conozco CETES, pagarés y fondos básicos','Básico'],
+     ['Conozco acciones, bonos, ETF y diversificación','Intermedio'],
+     ['Conozco derivados, opciones y mercados internacionales','Avanzado']]},
+ {d:3,t:'¿Con qué frecuencia sigues información y análisis de los mercados financieros?',
+  o:[['Nunca o casi nunca','Nula'],
+     ['Ocasionalmente, ante noticias relevantes','Ocasional'],
+     ['Varias veces por semana','Regular'],
+     ['Diariamente, como parte de mi rutina','Constante']]},
+ {d:3,t:'¿Cuál es tu experiencia previa invirtiendo?',
+  o:[['Ninguna; nunca he invertido','Sin experiencia'],
+     ['He usado instrumentos de deuda o cuentas de ahorro','Básica'],
+     ['He invertido en fondos o acciones','Intermedia'],
+     ['Opero activamente en varios mercados','Avanzada']]},
 ];
 
-const PROFILES = {
-  conservador:{
-    name:"Conservador",
-    icon:"🛡️",
-    color:"#5c9de0",
-    range:[0,12],
-    tagline:"Priorizas la seguridad y la preservación de tu capital. Prefieres rendimientos predecibles sobre ganancias elevadas con riesgo.",
-    alloc:[
-      {label:"Renta Fija (CETES, Bonos)", pct:60, color:"#5c9de0"},
-      {label:"Fondos de Deuda", pct:25, color:"#3ecf8e"},
-      {label:"Efectivo / Liquidez", pct:10, color:"#c9a84c"},
-      {label:"Renta Variable", pct:5, color:"#e05c5c"},
-    ],
-    recs:[
-      {icon:"🏛️", title:"CETES y Bonos gubernamentales", desc:"Instrumentos de deuda pública con capital garantizado y rendimientos predecibles, ideales para preservar el valor del dinero."},
-      {icon:"📈", title:"Fondos de deuda de corto plazo", desc:"Diversifican el riesgo entre múltiples emisores con mayor liquidez que un bono individual."},
-      {icon:"🔒", title:"Pagarés bancarios con rendimiento garantizado", desc:"Ofrecen tasas ligeramente superiores a las cuentas tradicionales con bajo riesgo crediticio."},
-      {icon:"🎓", title:"Educa tu perfil gradualmente", desc:"Conforme adquieras experiencia y estabilidad financiera, podrás considerar instrumentos con mayor potencial de rendimiento."},
-    ]
-  },
-  moderado:{
-    name:"Moderado",
-    icon:"⚖️",
-    color:"#c9a84c",
-    range:[13,24],
-    tagline:"Buscas un equilibrio entre crecimiento y protección. Aceptas cierta volatilidad a cambio de mejores rendimientos a mediano plazo.",
-    alloc:[
-      {label:"Renta Fija (Bonos, CETES)", pct:40, color:"#5c9de0"},
-      {label:"ETFs y Fondos Indexados", pct:30, color:"#3ecf8e"},
-      {label:"Acciones (Blue Chips)", pct:20, color:"#c9a84c"},
-      {label:"Efectivo / Liquidez", pct:10, color:"#e05c5c"},
-    ],
-    recs:[
-      {icon:"📊", title:"ETFs indexados (S&P 500, BMV)", desc:"Exposure diversificada a los mejores mercados globales con comisiones bajas y sin necesidad de seleccionar empresas individuales."},
-      {icon:"🏢", title:"Acciones de empresas sólidas (Blue Chips)", desc:"Empresas con historial probado, dividendos y menor volatilidad: Walmart, FEMSA, Apple, Coca-Cola."},
-      {icon:"🌐", title:"Fondos de inversión mixtos", desc:"Combinan renta fija y variable gestionados por profesionales, alineados con tu tolerancia al riesgo."},
-      {icon:"🔄", title:"Rebalanceo semestral", desc:"Revisa y ajusta tu portafolio cada 6 meses para mantener las proporciones objetivo y capitalizar oportunidades de mercado."},
-    ]
-  },
-  agresivo:{
-    name:"Agresivo",
-    icon:"🚀",
-    color:"#3ecf8e",
-    range:[25,36],
-    tagline:"Buscas maximizar el retorno a largo plazo. Aceptas alta volatilidad y posibles pérdidas temporales a cambio de crecimiento significativo.",
-    alloc:[
-      {label:"Acciones Individuales", pct:40, color:"#3ecf8e"},
-      {label:"ETFs de Crecimiento", pct:30, color:"#c9a84c"},
-      {label:"Activos Alternativos", pct:15, color:"#e05c5c"},
-      {label:"Renta Fija (Cobertura)", pct:15, color:"#5c9de0"},
-    ],
-    recs:[
-      {icon:"⚡", title:"Acciones de alto crecimiento", desc:"Empresas de tecnología, salud e innovación con alto potencial: Tesla, Nvidia, startups en etapa de expansión."},
-      {icon:"🌍", title:"Mercados emergentes y globales", desc:"ETFs de mercados emergentes (EM) con mayor potencial de apreciación y diversificación geográfica real."},
-      {icon:"₿", title:"Activos alternativos (cripto, REITs)", desc:"Una porción pequeña en activos de alto riesgo/retorno como criptomonedas y bienes raíces puede potenciar el portafolio."},
-      {icon:"📅", title:"Estrategia de largo plazo (7+ años)", desc:"Mantén la disciplina durante los ciclos bajistas; el tiempo en el mercado supera consistentemente al market timing."},
-    ]
-  }
+const PROFILES={
+ conservador:{tag:'Perfil conservador',name:'Prioridad: preservar el capital.',color:'#5b8def',range:[0,12],
+  lead:'Tu estructura de respuestas señala baja tolerancia a la volatilidad, horizonte comprimido o reserva insuficiente. La estrategia adecuada privilegia certidumbre sobre rendimiento: instrumentos con capital respaldado y liquidez disponible, mientras consolidas fondo de emergencia y conocimiento.',
+  alloc:[['Deuda gubernamental · CETES y bonos',60,'#5b8def'],['Fondos de deuda de corto plazo',25,'#3ddc97'],['Liquidez disponible',10,'#ccff02'],['Renta variable',5,'#ff4d5e']],
+  recs:[
+   ['Deuda gubernamental como base','Los Certificados de la Tesorería y los bonos gubernamentales ofrecen respaldo soberano y rendimiento predecible. Constituyen la referencia de bajo riesgo del mercado mexicano y son el punto de partida natural cuando la prioridad es no perder capital.'],
+   ['Fondos de deuda de corto plazo','Distribuyen el riesgo entre múltiples emisores y ofrecen mayor liquidez que un instrumento individual. Permiten disponer del capital sin penalización cuando el horizonte todavía es incierto.'],
+   ['Consolidar el fondo de emergencia','Antes de asumir cualquier exposición al mercado, una reserva de tres a seis meses de gasto corriente elimina la necesidad de liquidar posiciones en el peor momento del ciclo.'],
+   ['Ampliar exposición de forma gradual','Este perfil no es permanente. Conforme la reserva se consolide y el conocimiento aumente, incrementar la proporción en renta variable de manera escalonada es la trayectoria habitual.']]},
+ moderado:{tag:'Perfil moderado',name:'Equilibrio entre crecimiento y protección.',color:'#ccff02',range:[13,24],
+  lead:'Tus respuestas muestran disposición a asumir volatilidad acotada a cambio de rendimiento superior al de la deuda. La estrategia adecuada combina un núcleo estable con exposición diversificada al mercado, sin concentraciones que comprometan el patrimonio ante una corrección.',
+  alloc:[['Deuda · bonos y CETES',40,'#5b8def'],['ETF e indexados',30,'#3ddc97'],['Acciones de alta capitalización',20,'#ccff02'],['Liquidez disponible',10,'#ff4d5e']],
+  recs:[
+   ['Fondos indexados como núcleo','Un ETF referenciado a un índice amplio otorga exposición diversificada con comisiones reducidas, sin requerir selección individual de emisoras. Es el instrumento con mejor relación entre esfuerzo y resultado para este perfil.'],
+   ['Emisoras de alta capitalización','Empresas con historial probado, flujo estable y política de dividendos presentan menor volatilidad que el promedio del mercado y aportan crecimiento sin exponer el portafolio a riesgo idiosincrático elevado.'],
+   ['Fondos mixtos con gestión profesional','Combinan deuda y renta variable bajo administración especializada, con mandatos alineados a tolerancias intermedias. Simplifican la operación cuando el tiempo de seguimiento es limitado.'],
+   ['Rebalanceo semestral','Revisar las proporciones cada seis meses y regresarlas al objetivo original disciplina la toma de utilidades y obliga a comprar lo que ha bajado. Es el mecanismo que convierte la volatilidad en ventaja.']]},
+ agresivo:{tag:'Perfil agresivo',name:'Prioridad: maximizar el retorno.',color:'#3ddc97',range:[25,36],
+  lead:'Tus respuestas indican tolerancia elevada a la volatilidad, horizonte extenso y posición financiera con margen. La estrategia adecuada concentra el portafolio en activos de crecimiento, asumiendo correcciones profundas como costo del rendimiento acumulado de largo plazo.',
+  alloc:[['Acciones individuales',40,'#3ddc97'],['ETF de crecimiento',30,'#ccff02'],['Activos alternativos',15,'#ff4d5e'],['Deuda como cobertura',15,'#5b8def']],
+  recs:[
+   ['Emisoras de alto crecimiento','Sectores de tecnología, salud e innovación concentran las mayores tasas de apreciación histórica, junto con la mayor dispersión de resultados. La selección individual exige seguimiento activo y tolerancia a episodios de caída pronunciada.'],
+   ['Diversificación geográfica real','Los ETF de mercados emergentes y desarrollados fuera del mercado local reducen la correlación del portafolio con la economía nacional y amplían el universo de oportunidades.'],
+   ['Activos alternativos en proporción acotada','Una fracción limitada en instrumentos de alto riesgo y retorno puede elevar el rendimiento del conjunto. La restricción de tamaño es lo que impide que una pérdida total en ese segmento comprometa el patrimonio.'],
+   ['Disciplina durante los ciclos bajistas','El rendimiento de largo plazo se concentra en un número reducido de sesiones alcistas, imposibles de anticipar. Permanecer invertido durante las correcciones ha superado consistentemente cualquier intento de sincronizar entradas y salidas.']]},
 };
 
-let current = 0;
-let answers = new Array(QUESTIONS.length).fill(null);
+let cur=0, ans=new Array(12).fill(null);
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0);}
 
-function startQuiz(){
-  document.getElementById('start-screen').style.display='none';
-  document.getElementById('quiz-screen').style.display='block';
-  renderQuestion();
+function start(){cur=0;ans=new Array(12).fill(null);show('s-quiz');render();}
+
+function render(){
+  const q=Q[cur], D=DIMS[q.d];
+  $('q-panel').style.setProperty('--q-color',D.color);
+  $('q-code').textContent=D.code;
+  $('q-cat').textContent=D.name;
+  $('q-text').textContent=q.t;
+  $('opts').innerHTML=q.o.map((o,i)=>
+    `<button class="opt ${ans[cur]===i?'sel':''}" onclick="pick(${i})">
+      <span class="lt">${String.fromCharCode(65+i)}</span><span>${o[0]}</span><span class="tag">${o[1]}</span></button>`).join('');
+  $('pstrip').innerHTML=Array.from({length:12},(_,i)=>
+    `<div class="pseg ${i<cur?'done':i===cur?'now':''}"></div>`).join('');
+  $('pm-dim').textContent=D.code+' · '+D.name;
+  $('pm-n').textContent=pad(cur+1);
+  $('mh-q').textContent=pad(cur+1)+'/12';
+  $('b-back').style.visibility=cur>0?'visible':'hidden';
+  $('b-next').textContent=cur===11?'Ver mi perfil':'Siguiente';
+  $('b-next').disabled=ans[cur]===null;
 }
-
-function renderQuestion(){
-  const q = QUESTIONS[current];
-  const area = document.getElementById('question-area');
-
-  // Section pill
-  const sec = SECTIONS[q.section];
-  const pill = `<div class="section-pill"><span class="section-icon">${sec.icon}</span>${sec.label}</div>`;
-
-  // Options HTML
-  const optsHtml = q.opts.map((o,i)=>`
-    <div class="opt ${answers[current]===i?'selected':''}" onclick="selectOpt(${i})">
-      <div class="opt-dot"><div class="opt-dot-inner"></div></div>
-      <span class="opt-text">${o.text}</span>
-      <span class="opt-score">${o.tag}</span>
-    </div>
-  `).join('');
-
-  area.innerHTML = `
-    ${pill}
-    <div class="q-card">
-      <div class="q-num">Pregunta ${current+1} de 12</div>
-      <div class="q-text">${q.text}</div>
-      <div class="options">${optsHtml}</div>
-    </div>
-  `;
-
-  // Progress
-  const pct = (current/12)*100;
-  document.getElementById('progress-fill').style.width = pct+'%';
-  document.getElementById('q-current').textContent = current+1;
-
-  // Section labels
-  SECTIONS.forEach((_,i)=>document.getElementById('lbl-'+i).classList.remove('active'));
-  document.getElementById('lbl-'+q.section).classList.add('active');
-
-  // Buttons
-  document.getElementById('btn-back').style.display = current>0?'block':'none';
-  const nextBtn = document.getElementById('btn-next');
-  nextBtn.textContent = current===11?'Ver mi perfil ✦':'Siguiente →';
-  nextBtn.disabled = answers[current]===null;
+function pick(i){
+  ans[cur]=i;
+  document.querySelectorAll('.opt').forEach((el,idx)=>el.classList.toggle('sel',idx===i));
+  $('b-next').disabled=false;
 }
+function next(){if(ans[cur]===null)return;if(cur===11){results();return;}cur++;render();}
+function back(){if(cur>0){cur--;render();}}
 
-function selectOpt(i){
-  answers[current]=i;
-  document.querySelectorAll('.opt').forEach((el,idx)=>{
-    el.classList.toggle('selected', idx===i);
-  });
-  document.getElementById('btn-next').disabled=false;
-}
-
-function goNext(){
-  if(answers[current]===null) return;
-  if(current===11){showResult();return;}
-  current++;
-  renderQuestion();
-}
-
-function goBack(){
-  if(current>0){current--;renderQuestion();}
-}
-
-function computeScores(){
+function results(){
+  show('s-res');
   const dim=[0,0,0,0];
-  QUESTIONS.forEach((q,i)=>{
-    if(answers[i]!==null) dim[q.section]+=q.opts[answers[i]].score;
-  });
-  return dim;
-}
+  Q.forEach((q,i)=>{if(ans[i]!==null)dim[q.d]+=ans[i];});
+  const total=dim.reduce((a,b)=>a+b,0);
+  const key=total<=12?'conservador':total<=24?'moderado':'agresivo';
+  const P=PROFILES[key];
 
-function showResult(){
-  document.getElementById('quiz-screen').style.display='none';
-  const res = document.getElementById('result-screen');
-  res.style.display='block';
-  res.scrollIntoView({behavior:'smooth'});
+  $('v-tag').textContent=P.tag;
+  $('verdict').textContent=P.name;
+  $('verdict').style.color=P.color;
+  $('verdict-lead').textContent=P.lead;
 
-  const dims = computeScores();
-  const total = dims.reduce((a,b)=>a+b,0);
+  let nn=0;const iv=setInterval(()=>{nn=Math.min(nn+1,total);
+    $('score').innerHTML=nn+'<small> / 36</small>';if(nn>=total)clearInterval(iv);},34);
+  $('score').style.color=P.color;
 
-  // Determine profile
-  let profileKey = total<=12?'conservador':total<=24?'moderado':'agresivo';
-  const profile = PROFILES[profileKey];
-
-  // Set CSS variable for profile color
-  res.style.setProperty('--profile-color', profile.color);
-
-  // Header
-  document.getElementById('result-icon').textContent = profile.icon;
-  document.getElementById('result-icon-wrap').style.background=`${profile.color}18`;
-  document.getElementById('result-name').textContent = profile.name;
-  document.getElementById('result-name').style.color = profile.color;
-  document.getElementById('result-tagline').textContent = profile.tagline;
-
-  // Total score
-  animateNum('total-score-display', total);
-
-  // Range info
-  document.getElementById('range-info').innerHTML=`
-    <div>Rango <span class="range-val">Conservador: 0–12</span></div>
-    <div>Rango <span class="range-val">Moderado: 13–24</span></div>
-    <div>Rango <span class="range-val">Agresivo: 25–36</span></div>
-  `;
-
-  // Score breakdown
-  const labels=['Tolerancia al Riesgo','Horizonte de Inversión','Situación Financiera','Conocimiento Financiero'];
-  const colors=['#5c9de0','#c9a84c','#3ecf8e','#e05c5c'];
-  const bd = document.getElementById('score-breakdown');
-  bd.innerHTML = dims.map((d,i)=>{
-    const pct = Math.round((d/9)*100);
-    return `
-      <div class="score-card">
-        <div class="score-card-label">${SECTIONS[i].icon} Dimensión ${i+1}</div>
-        <div class="score-card-dim">${labels[i]}</div>
-        <div class="score-bar-track">
-          <div class="score-bar-fill" id="bar-${i}" style="width:0%;background:${colors[i]};"></div>
-        </div>
-        <div class="score-card-pts">Puntaje: <strong>${d} / 9</strong> (${pct}%)</div>
-      </div>
-    `;
+  $('ranges').innerHTML=['conservador','moderado','agresivo'].map(k=>{
+    const R=PROFILES[k];const on=k===key;
+    return `<div class="${on?'on':''}">${on?'&rarr; ':'&nbsp;&nbsp;&nbsp;'}${R.tag.replace('Perfil ','').toUpperCase()} &middot; ${pad(R.range[0])}&ndash;${R.range[1]}</div>`;
   }).join('');
 
-  setTimeout(()=>{
-    dims.forEach((_,i)=>{
-      const pct = Math.round((dims[i]/9)*100);
-      document.getElementById('bar-'+i).style.width=pct+'%';
-    });
-  },200);
+  $('dgrid').innerHTML=dim.map((v,i)=>{
+    const p=Math.round(v/9*100);
+    return `<div class="dcell">
+      <div class="dcell-k">${DIMS[i].code} · Dimensión ${i+1}</div>
+      <div class="dcell-n">${DIMS[i].name}</div>
+      <div class="dtrack"><div class="dfill" id="df${i}" style="width:0%;background:${DIMS[i].color}"></div></div>
+      <div class="dcell-v"><b>${v}</b> de 9 puntos · ${p}%</div></div>`;}).join('');
+  setTimeout(()=>dim.forEach((v,i)=>{$('df'+i).style.width=Math.round(v/9*100)+'%';}),220);
 
-  // Radar chart
-  const ctx = document.getElementById('radarChart').getContext('2d');
-  new Chart(ctx,{
-    type:'radar',
-    data:{
-      labels:['Riesgo','Horizonte','Finanzas','Conocimiento'],
-      datasets:[{
-        label:'Tu perfil',
-        data:dims.map(d=>Math.round((d/9)*100)),
-        backgroundColor:`${profile.color}22`,
-        borderColor:profile.color,
-        borderWidth:2,
-        pointBackgroundColor:profile.color,
-        pointRadius:5,
-      }]
-    },
-    options:{
-      responsive:true,
-      plugins:{legend:{display:false}},
-      scales:{
-        r:{
-          min:0,max:100,
-          ticks:{display:false},
-          grid:{color:'rgba(255,255,255,0.07)'},
-          angleLines:{color:'rgba(255,255,255,0.07)'},
-          pointLabels:{
-            color:'rgba(232,228,220,0.7)',
-            font:{size:12,family:'DM Sans'}
-          }
-        }
-      }
-    }
-  });
+  const ch=Chart.getChart('radar');if(ch)ch.destroy();
+  new Chart($('radar').getContext('2d'),{type:'radar',
+    data:{labels:DIMS.map(d=>d.code),datasets:[{data:dim.map(v=>Math.round(v/9*100)),
+      backgroundColor:P.color+'22',borderColor:P.color,borderWidth:2,
+      pointBackgroundColor:P.color,pointRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},
+      scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(255,255,255,.07)'},
+        angleLines:{color:'rgba(255,255,255,.07)'},
+        pointLabels:{color:'#767a83',font:{family:'IBM Plex Mono',size:13}}}}}});
 
-  // Allocation
-  const ab = document.getElementById('alloc-bars');
-  ab.innerHTML = profile.alloc.map((a,i)=>`
-    <div class="alloc-row">
-      <div class="alloc-label">${a.label}</div>
-      <div class="alloc-track">
-        <div class="alloc-bar" id="alloc-${i}" style="width:0%;background:${a.color};"></div>
-      </div>
-      <div class="alloc-pct">${a.pct}%</div>
-    </div>
-  `).join('');
+  $('alloc').innerHTML=P.alloc.map((a,i)=>
+    `<div class="alloc"><div class="alloc-top"><span class="alloc-k">${a[0]}</span>
+      <span class="alloc-p" style="color:${a[2]}">${a[1]}%</span></div>
+      <div class="atrack"><div class="afill" id="af${i}" style="width:0%;background:${a[2]}"></div></div></div>`).join('');
+  setTimeout(()=>P.alloc.forEach((a,i)=>{$('af'+i).style.width=a[1]+'%';}),340);
 
-  setTimeout(()=>{
-    profile.alloc.forEach((_,i)=>{
-      document.getElementById('alloc-'+i).style.width=profile.alloc[i].pct+'%';
-    });
-  },400);
-
-  // Recommendations
-  document.getElementById('rec-grid').innerHTML = profile.recs.map(r=>`
-    <div class="rec-item">
-      <div class="rec-item-icon">${r.icon}</div>
-      <div class="rec-item-text">
-        <strong>${r.title}</strong>
-        <span>${r.desc}</span>
-      </div>
-    </div>
-  `).join('');
-
-  document.getElementById('progress-fill').style.width='100%';
+  $('recs').innerHTML=P.recs.map((r,i)=>
+    `<div class="rec"><span class="rec-i">${pad(i+1)}</span>
+      <div><div class="rec-h">${r[0]}</div><div class="rec-b">${r[1]}</div></div></div>`).join('');
 }
-
-function animateNum(id, target){
-  let n=0; const el=document.getElementById(id);
-  const step=Math.ceil(target/30);
-  const iv=setInterval(()=>{
-    n=Math.min(n+step,target);
-    el.textContent=n;
-    if(n>=target)clearInterval(iv);
-  },40);
-}
-
-function restartQuiz(){
-  current=0;
-  answers=new Array(QUESTIONS.length).fill(null);
-  document.getElementById('result-screen').style.display='none';
-
-  // Destroy chart
-  const c=Chart.getChart('radarChart');
-  if(c)c.destroy();
-
-  document.getElementById('quiz-screen').style.display='none';
-  document.getElementById('start-screen').style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+function reset(){const ch=Chart.getChart('radar');if(ch)ch.destroy();show('s-intro');}
 </script>
 </body>
 </html>
